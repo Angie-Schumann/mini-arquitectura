@@ -37,8 +37,6 @@ test("procesar convierte el nombre a mayúsculas y devuelve longitud", async () 
   await handler(req, res);
 
   assert.equal(res.statusCode, 200);
-
-  // No usamos deepEqual para no romper si hay campos extra (timestamp, etc.)
   assert.equal(res.body.resultado, "Nombre procesado: JUAN");
   assert.equal(res.body.longitud, 4);
 });
@@ -78,7 +76,6 @@ test("política de calidad: nombre en MAYÚSCULAS y longitud consistente", async
 
   assert.equal(res.statusCode, 200);
 
-  // Estructura mínima obligatoria
   assert.ok(res.body && typeof res.body === "object");
   assert.ok("resultado" in res.body);
   assert.ok("longitud" in res.body);
@@ -86,14 +83,22 @@ test("política de calidad: nombre en MAYÚSCULAS y longitud consistente", async
   assert.equal(typeof res.body.resultado, "string");
   assert.equal(typeof res.body.longitud, "number");
 
-  // Formato consistente (según tu contrato actual)
   assert.ok(res.body.resultado.startsWith("Nombre procesado: "));
 
-  // Política: SOLO el nombre procesado debe ir en MAYÚSCULAS
   const nombreProcesado = res.body.resultado.replace("Nombre procesado: ", "");
   assert.equal(nombreProcesado, nombreProcesado.toUpperCase());
-
-  // Política: longitud consistente con el nombre procesado
   assert.equal(res.body.longitud, nombreProcesado.length);
   assert.ok(nombreProcesado.length > 0);
+});
+
+// ✅ Reto 5 — Falla simulada (no funcional)
+test('procesar: simula falla cuando nombre === "error"', async () => {
+  const req = { query: { nombre: "error" } };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 500);
+  assert.ok(res.body && typeof res.body === "object");
+  assert.equal(res.body.error, "Falla simulada");
 });
