@@ -30,17 +30,20 @@ function mockRes() {
   };
 }
 
-test("procesar convierte el nombre a mayúsculas", async () => {
+test("procesar convierte el nombre a mayúsculas y devuelve longitud", async () => {
   const req = { query: { nombre: "juan" } };
   const res = mockRes();
 
   await handler(req, res);
 
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.body, { resultado: "Nombre procesado: JUAN" });
+  assert.deepEqual(res.body, {
+    resultado: "Nombre procesado: JUAN",
+    longitud: 4
+  });
 });
 
-test("procesar: no falla si nombre viene vacío", async () => {
+test("procesar: no falla si nombre viene vacío y devuelve longitud", async () => {
   const req = { query: { nombre: "" } };
   const res = mockRes();
 
@@ -49,9 +52,11 @@ test("procesar: no falla si nombre viene vacío", async () => {
   assert.equal(res.statusCode, 200);
   assert.ok(typeof res.body.resultado === "string");
   assert.ok(res.body.resultado.length > 0);
+  assert.ok(typeof res.body.longitud === "number");
+  assert.ok(res.body.longitud > 0);
 });
 
-test("procesar: no falla si nombre no viene", async () => {
+test("procesar: no falla si nombre no viene y devuelve longitud", async () => {
   const req = { query: {} };
   const res = mockRes();
 
@@ -60,4 +65,6 @@ test("procesar: no falla si nombre no viene", async () => {
   assert.equal(res.statusCode, 200);
   assert.ok(typeof res.body.resultado === "string");
   assert.ok(res.body.resultado.length > 0);
+  assert.ok(typeof res.body.longitud === "number");
+  assert.ok(res.body.longitud > 0);
 });
