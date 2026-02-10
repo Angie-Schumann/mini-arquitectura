@@ -22,4 +22,16 @@ test("procesar convierte el nombre a mayúsculas", () => {
 
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.body, { resultado: "Nombre procesado: JUAN" });
+
+  test("procesar: no falla si nombre viene vacío", async () => {
+  const req = { query: { nombre: "" } };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.ok(typeof res.body.resultado === "string");
+  assert.ok(res.body.resultado.length > 0);
+});
+
 });
