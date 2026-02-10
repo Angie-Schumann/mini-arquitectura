@@ -68,3 +68,33 @@ test("procesar: no falla si nombre no viene y devuelve longitud", async () => {
   assert.ok(typeof res.body.longitud === "number");
   assert.ok(res.body.longitud > 0);
 });
+
+// Reto 3 — Política mínima de calidad
+test("política de calidad: contrato estricto y formato consistente", async () => {
+  const req = { query: { nombre: "  Mi Nombre  " } };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+
+  // 1) Estructura JSON estricta: SOLO estas 2 llaves
+  const keys = Object.keys(res.body).sort();
+  assert.deepEqual(keys, ["longitud", "resultado"]);
+
+  // 2) Formato consistente del resultado
+  assert.ok(res.body.resultado.startsWith("Nombre procesado: "));
+
+  // 3) Mayúsculas obligatorias (política)
+  assert.equal(res.body.resultado, res.body.resultado.toUpperCase());
+
+  // 4) Sin espacios al inicio/final
+  assert.equal(res.body.resultado.trim(), res.body.resultado);
+
+  // 5) Longitud consistente con el nombre procesado
+  const procesado = res.body.resultado.replace("Nombre procesado: ", "");
+  assert.equal(res.body.longitud, procesado.length);
+
+  // 6) No se permite nombre vacío después de procesar
+  assert.ok(procesado.length > 0);
+});
