@@ -2,12 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import handler from "../api/procesar.js";
 
-test("procesar convierte el nombre a mayúsculas", () => {
-  const req = { query: { nombre: "juan" } };
-
-  const res = {
+function mockRes() {
+  return {
     statusCode: null,
     body: null,
+    headers: {},
     status(code) {
       this.statusCode = code;
       return this;
@@ -15,15 +14,33 @@ test("procesar convierte el nombre a mayúsculas", () => {
     json(payload) {
       this.body = payload;
       return this;
+    },
+    setHeader(key, value) {
+      this.headers[key] = value;
+      return this;
+    },
+    end(payload) {
+      try {
+        this.body = JSON.parse(payload);
+      } catch {
+        this.body = payload;
+      }
+      return this;
     }
   };
+}
 
-  handler(req, res);
+test("procesar convierte el nombre a mayúsculas", async () => {
+  const req = { query: { nombre: "juan" } };
+  const res = mockRes();
+
+  await handler(req, res);
 
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.body, { resultado: "Nombre procesado: JUAN" });
+});
 
-  test("procesar: no falla si nombre viene vacío", async () => {
+test("procesar: no falla si nombre viene vacío", async () => {
   const req = { query: { nombre: "" } };
   const res = mockRes();
 
@@ -34,4 +51,13 @@ test("procesar convierte el nombre a mayúsculas", () => {
   assert.ok(res.body.resultado.length > 0);
 });
 
+test("procesar: no falla si nombre no viene", async () => {
+  const req = { query: {} };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.ok(typeof res.body.resultado === "string");
+  assert.ok(res.body.resultado.length > 0);
 });
