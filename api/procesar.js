@@ -1,7 +1,15 @@
 export default function handler(req, res) {
-  const nombre = req.query.nombre || "anónimo";
+  const nombreRaw = req?.query?.nombre;
 
-  res.status(200).json({
-    resultado: `Nombre procesado: ${nombre.toUpperCase()}`
+  const nombre =
+    typeof nombreRaw === "string" && nombreRaw.trim().length > 0
+      ? nombreRaw.trim()
+      : "anónimo";
+
+  const nombreProcesado = nombre.toUpperCase();
+
+  return res.status(200).json({
+    resultado: `Nombre procesado: ${nombreProcesado}`,
+    longitud: nombreProcesado.length
   });
 }
