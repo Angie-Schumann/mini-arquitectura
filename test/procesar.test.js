@@ -38,15 +38,9 @@ test("procesar convierte el nombre a mayúsculas y devuelve longitud", async () 
 
   assert.equal(res.statusCode, 200);
 
-  // contrato mínimo: estas llaves deben existir
-  assert.ok(typeof res.body.resultado === "string");
-  assert.ok(typeof res.body.longitud === "number");
-
-  // si tu resultado exacto es así, dejamos el assert exacto:
-  assert.deepEqual(res.body, {
-    resultado: "Nombre procesado: JUAN",
-    longitud: 4
-  });
+  // No usamos deepEqual para no romper si hay campos extra (timestamp, etc.)
+  assert.equal(res.body.resultado, "Nombre procesado: JUAN");
+  assert.equal(res.body.longitud, 4);
 });
 
 test("procesar: no falla si nombre viene vacío y devuelve longitud", async () => {
@@ -62,4 +56,44 @@ test("procesar: no falla si nombre viene vacío y devuelve longitud", async () =
   assert.ok(res.body.longitud > 0);
 });
 
-test("procesar: no falla si nombre no viene y devuelve lon
+test("procesar: no falla si nombre no viene y devuelve longitud", async () => {
+  const req = { query: {} };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.ok(typeof res.body.resultado === "string");
+  assert.ok(res.body.resultado.length > 0);
+  assert.ok(typeof res.body.longitud === "number");
+  assert.ok(res.body.longitud > 0);
+});
+
+// ✅ Reto 3 — Política mínima de calidad
+test("política de calidad: nombre en MAYÚSCULAS y longitud consistente", async () => {
+  const req = { query: { nombre: "Mi Nombre" } };
+  const res = mockRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+
+  // Estructura mínima obligatoria
+  assert.ok(res.body && typeof res.body === "object");
+  assert.ok("resultado" in res.body);
+  assert.ok("longitud" in res.body);
+
+  assert.equal(typeof res.body.resultado, "string");
+  assert.equal(typeof res.body.longitud, "number");
+
+  // Formato consistente (según tu contrato actual)
+  assert.ok(res.body.resultado.startsWith("Nombre procesado: "));
+
+  // Política: SOLO el nombre procesado debe ir en MAYÚSCULAS
+  const nombreProcesado = res.body.resultado.replace("Nombre procesado: ", "");
+  assert.equal(nombreProcesado, nombreProcesado.toUpperCase());
+
+  // Política: longitud consistente con el nombre procesado
+  assert.equal(res.body.longitud, nombreProcesado.length);
+  assert.ok(nombreProcesado.length > 0);
+});
