@@ -6,6 +6,12 @@ export default function handler(req, res) {
       ? nombreRaw.trim()
       : "anónimo";
 
+  if (nombre === "error") {
+    return res.status(500).json({
+      error: "Falla simulada"
+    });
+  }
+
   const nombreProcesado = nombre.toUpperCase();
 
   return res.status(200).json({
