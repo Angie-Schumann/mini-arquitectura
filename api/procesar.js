@@ -1,6 +1,6 @@
 export default function handler(req, res) {
   const nombreRaw = req?.query?.nombre;
-
+//Taller práctico - Calidad con SonarCloud
   const nombre =
     typeof nombreRaw === "string" && nombreRaw.trim().length > 0
       ? nombreRaw.trim()
