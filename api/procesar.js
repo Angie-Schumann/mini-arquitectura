@@ -1,13 +1,12 @@
 export default function handler(req, res) {
-  const nombre = req.query.nombre ?? "";
+  const query = req?.query ?? {};
+  const raw = Array.isArray(query.nombre) ? query.nombre[0] : query.nombre;
 
-  const normalizado = String(nombre).trim();
-  const finalNombre = normalizado === "" ? "anónimo" : normalizado;
+  const normalizado = String(raw ?? '').trim();
+  const finalNombre = normalizado.length === 0 ? 'anónimo' : normalizado;
 
-  const payload = {
+  return res.status(200).json({
     resultado: `Nombre procesado: ${finalNombre.toUpperCase()}`,
     longitud: finalNombre.length
-  };
-
-  return res.status(200).json(payload);
+  });
 }
